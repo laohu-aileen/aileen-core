@@ -153,21 +153,40 @@ export class Application extends AppContext {
   }
 
   /**
+   * 扫描模块
+   * @param name
+   */
+  protected scanDepend(name: string) {
+    const required = require(name);
+    for (const key in required) {
+      const target = required[key];
+      if (typeof target !== "function") continue;
+      this.register(target);
+    }
+  }
+
+  /**
    * 扫描自动载入
    * @param dir
    */
   public scan(dir: string) {
-    const stack = callsite()[1].getFileName();
-    const pattern = join(dirname(stack), dir);
-    const paths = glob.sync(pattern);
+    // 路径解析
+    let paths: string[];
+    if (dir[0] === ".") {
+      const stack = callsite()[1].getFileName();
+      const pattern = join(dirname(stack), dir);
+      paths = glob.sync(pattern);
+    } else if (dir[0] === "/") {
+      paths = glob.sync(dir);
+    } else {
+      this.scanDepend(dir);
+      return;
+    }
+
+    // 加载文件
     for (const path of paths) {
       if (!this.checkFile(path)) continue;
-      const required = require(path);
-      for (const key in required) {
-        const target = required[key];
-        if (typeof target !== "function") continue;
-        this.register(target);
-      }
+      this.scanDepend(path);
     }
   }
 
