@@ -1,5 +1,5 @@
 import { Application } from "../application/Application";
-import { Next } from "koa";
+import { Next } from "./basic";
 
 /**
  * 启动器

@@ -1,7 +1,7 @@
 /**
- * 中间件NEXT
+ * 中间件Next
  */
-export { Next } from "koa";
+export type Next = () => Promise<any>;
 
 /**
  * 可实力化类型
